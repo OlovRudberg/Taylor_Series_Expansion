@@ -20,7 +20,8 @@ class TaylorSeries:
     def _expression_type(self):
         if re.findall(r'e\*\*|cos|sin|cosinus|tan', self.expression):
             return True
-        else: False
+        else:
+            return False
 
     def _find_variable(self):
         if self._expression_type():
@@ -39,7 +40,12 @@ class TaylorSeries:
     def _find_degree(self):
         degree = 0
         if self._expression_type():
-            degree = 20
+            '''
+            If a function can be differentiated inf many times, select a number of
+            iterations to ensure close approximative precision yet reasonable
+            compute time. Note that for differentiating tan(x) 20 times will time out.
+            '''
+            degree = 15
         else:
             for degree_iterator in re.findall(r'x\*\*(\d+)', self.expression):
                 degree = max(
@@ -56,11 +62,11 @@ class TaylorSeries:
     def _evaluate_expression(self, derivative: S.Symbol, value: int):
         evaluation = S.lambdify(self.variable, derivative, "math")
         return evaluation(value)
-    
+
     def _polynomial_term(self, x, a, iterator):
         return (self.x - self.a)**self.iterator
 
-    def execute_granular_series(self) -> List[Dict]:            
+    def execute_granular_series(self) -> List[Dict]:
         while self.iterator <= self.degree:
             self.derivative = S.diff(self.derivative, self.variable)
             if self.iterator == 0:
@@ -71,10 +77,20 @@ class TaylorSeries:
                     "current_expression": self.derivative,
                     "current_derivative_iteration": self.iterator,
                     "current_evaluation_at": self.a,
-                    "current_expression_valuation": self._evaluate_expression(self.derivative, self.a),
+                    "current_expression_valuation": self._evaluate_expression(
+                        self.derivative, self.a
+                    ),
                     "factorial_value": self._compute_factorial(self.iterator),
-                    "polynomial_evaluation": self._polynomial_term(self.x, self.a, self.iterator),
-                    "total_value_evaluated": self._compute_factorial(self.iterator) * self._evaluate_expression(self.derivative, self.a) * (self.x - self.a)**self.iterator
+                    "polynomial_evaluation": self._polynomial_term(
+                        self.x, self.a, self.iterator
+                    ),
+                    "total_value_evaluated": self._compute_factorial(
+                        self.iterator
+                    ) * self._evaluate_expression(
+                        self.derivative, self.a
+                    ) * (
+                        self.x - self.a
+                    )**self.iterator
                 }
             )
             self.iterator = self.iterator + 1
@@ -86,9 +102,15 @@ class TaylorSeries:
             taylor_term_value += taylor_term.get('total_value_evaluated')
         return taylor_term_value
 
+
+# Example usage:
+taylor_series = TaylorSeries(expression='-0.5*x**5 + 3*x**2 + 2*x + 1', x=5, a=0)
+# taylor_series = TaylorSeries(expression='e**x', x=5, a=0)
+# taylor_series = TaylorSeries(expression='tan(x)', x=5, a=0)
+# taylor_series.execute_granular_series()
+# taylor_series.execute_general_series()
+
 # Example usage:
 # taylor_series = TaylorSeries(expression='-0.5*x**5 + 3*x**2 + 2*x + 1', x=5, a=0)
 # taylor_series = TaylorSeries(expression='e**x', x=5, a=0)
 # taylor_series = TaylorSeries(expression='cos(x)', x=5, a=0)
-# taylor_series.execute_granular_series()
-taylor_series.execute_general_series()
