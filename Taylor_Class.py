@@ -107,10 +107,3 @@ class TaylorSeries:
 taylor_series = TaylorSeries(expression='-0.5*x**5 + 3*x**2 + 2*x + 1', x=5, a=0)
 # taylor_series = TaylorSeries(expression='e**x', x=5, a=0)
 # taylor_series = TaylorSeries(expression='tan(x)', x=5, a=0)
-# taylor_series.execute_granular_series()
-# taylor_series.execute_general_series()
-
-# Example usage:
-# taylor_series = TaylorSeries(expression='-0.5*x**5 + 3*x**2 + 2*x + 1', x=5, a=0)
-# taylor_series = TaylorSeries(expression='e**x', x=5, a=0)
-# taylor_series = TaylorSeries(expression='cos(x)', x=5, a=0)
